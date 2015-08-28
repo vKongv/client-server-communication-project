@@ -1,4 +1,4 @@
-/**  Version 1.0
+/**  Version 2.0
 **/
 
 import java.net.*;
@@ -12,74 +12,97 @@ public class vkProtocol {
     private static final int FINISHED = 4;
 
 
-
     private static final int NUMRESOURCES = 4;
 
     private int state = WAITING;
 
     private String[] resources = { "iTune", "ZoneAlarm", "WinRar", "Audacity" };
+    private int[] downloadCounter = {0,0,0,0}; // Download counter for all resources
 
+    private String errorMessage = "Invalid input! Please try again!";
 
     public String processInput(String theInput) {
         String theOutput = null;
-
-        if (state == WAITING) {
-            theOutput = "Here are the terms of reference. Do you accept? Yes or No";
+        String theMessage = "";
+        switch(state){
+        case WAITING :
+            theMessage = "Here are the terms of reference. Do you accept? Yes or No";
             state = DISPLAYINGTC;
-        }
+            theOutput = Integer.toString(state) + "_" + theMessage;
+            break;
 
-        else if (state == DISPLAYINGTC) {
+
+        case DISPLAYINGTC :
             if (theInput.equalsIgnoreCase("Yes")) {
                 theOutput = "";
                 for(int i=0; i< resources.length; i ++){
-
-                  theOutput = theOutput + resources[i] + "_";
+                  theMessage = theMessage + resources[i] + "_" + Integer.toString(downloadCounter[i]) + "_";
                 }
                 state = DISPLAYINGRESOURCES;
+                theOutput = Integer.toString(state) + "_" + theMessage;
             }
             else if (theInput.equalsIgnoreCase("No")){
-              theOutput = "Bye.";
+              theMessage = "Bye.";
               state = WAITING;
+              theOutput = Integer.toString(state) + "_" + theMessage;
             }
             else{
-              theOutput = "Wrong input. Type Yes or No ONLY.";
+              theMessage = errorMessage;
+              theOutput = Integer.toString(state) + "_" + theMessage;
             }
-        }
+            break;
 
-        else if (state == DISPLAYINGRESOURCES) {
-          boolean found = false; //To identify whethere the resource had been found
-          int resourceLocation = Integer.parseInt(theInput) -1;
-          for (int i=0; i<resources.length; i++){
-            if (resources[resourceLocation] == resources[i]) {
-                theOutput = "You are downloading " + resources[i];
-                state = DOWNLOADING;
-                found = true;
-                break;
+        case (DISPLAYINGRESOURCES) :
+          boolean found = false; //To identify whethere the resource had been found.
+          try{
+            int resourceLocation = Integer.parseInt(theInput) - 1; //The resource that the user want.
+            for (int i=0; i< resources.length; i++){
+              if (resources[resourceLocation] == resources[i]) {
+                  downloadCounter[i] += 1; // Increase counter by 1
+                  theMessage   = "You are downloading " + resources[i];
+                  state = DOWNLOADING;
+                  theOutput = Integer.toString(state) + "_" + theMessage ;
+                  found = true;
+                  break;
+                }
               }
-            }
 
-            if (!found){
-                theOutput = "Invalid selection! Please choose again.";
+              if (!found){
+                  theMessage = errorMessage;
+                  theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            break;
+          }catch (Exception e){
+            theMessage = errorMessage;
+            theOutput = theOutput = Integer.toString(state) + "_" + theMessage;
+            break;
           }
 
-        }
 
-        else if (state == DOWNLOADING) {
-          theOutput = "Enter BYE to exit, and ENTER to continue.";
+        case (DOWNLOADING) :
+          theMessage = "Enter BYE to exit, and ENTER to continue.";
           state = FINISHED;
-        }
-        else if (state == FINISHED) {
+          theOutput = Integer.toString(state) + "_" + theMessage;
+          break;
+
+        case (FINISHED) :
             if (theInput.equalsIgnoreCase("enter")) {
-              theOutput = "";
               for(int i=0; i< resources.length; i ++){
-                theOutput = theOutput + resources[i] + "_";
+                theMessage = theMessage + resources[i] + "_" + Integer.toString(downloadCounter[i]) + "_";
               }
                 state = DISPLAYINGRESOURCES;
+                theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            else if (theInput.equalsIgnoreCase("bye")){
+                theMessage = "Bye.";
+                state = WAITING;
+                theOutput = Integer.toString(state) + "_" + theMessage;
             }
             else {
-                theOutput = "Bye.";
-                state = WAITING;
+              theMessage= errorMessage;
+              theOutput = Integer.toString(state) + "_" + theMessage;
             }
+            break;
         }
         return theOutput;
     }
