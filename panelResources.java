@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import javax.swing.border.*;
+import java.util.*;
+import java.lang.*;
 
 public class panelResources extends JPanel{
   JLabel lblWelcome ;
@@ -54,10 +56,10 @@ public class panelResources extends JPanel{
     glResources.setHorizontalGroup(
       glResources.createSequentialGroup()
       .addGap(206, 206, 206)
-/* --- Group up to all component to become column 1 --- */
+          /* --- Group up to all component to become column 1 --- */
       .addGroup(
         glResources.createParallelGroup()
-/* --- Group up lblHostName,lblPortNumber with txtPortNumber,txtHostName (ROW 1). --- */
+          /* --- Group up lblHostName,lblPortNumber with txtPortNumber,txtHostName (ROW 1). --- */
         .addGroup(
           glResources.createParallelGroup(GroupLayout.Alignment.LEADING)
           .addGroup(
@@ -74,33 +76,74 @@ public class panelResources extends JPanel{
             .addComponent(lblResource)
             .addComponent(cbCollection, GroupLayout.PREFERRED_SIZE, 120,GroupLayout.PREFERRED_SIZE))
           .addComponent(btnConfirm, GroupLayout.PREFERRED_SIZE, 387,GroupLayout.PREFERRED_SIZE))
-      )
-    );
+      ));
 
     /* --- All grouping in this section is based on Horizontal view. --- */
-        glResources.setVerticalGroup(
-              glResources.createSequentialGroup()
-              .addGap(80, 80, 80)
-              .addComponent(lblWelcome)
-              .addGap(40, 40, 40)
-              .addComponent(lblSelectMsg)
-              .addGap(40, 40, 40)
-            .addGroup(
-              glResources.createParallelGroup(GroupLayout.Alignment.BASELINE)
-              .addComponent(lblResource)
-              .addComponent(cbCollection)
-            )
-            .addGap(93, 93, 93)
-            .addComponent(btnConfirm, GroupLayout.PREFERRED_SIZE, 40,GroupLayout.PREFERRED_SIZE)
-        );
+    glResources.setVerticalGroup(
+      glResources.createSequentialGroup()
+      .addGap(80, 80, 80)
+      .addComponent(lblWelcome)
+      .addGap(40, 40, 40)
+      .addComponent(lblSelectMsg)
+      .addGap(40, 40, 40)
+      .addGroup(
+        glResources.createParallelGroup(GroupLayout.Alignment.BASELINE)
+        .addComponent(lblResource)
+        .addComponent(cbCollection))
+      .addGap(93, 93, 93)
+      .addComponent(btnConfirm, GroupLayout.PREFERRED_SIZE, 40,GroupLayout.PREFERRED_SIZE));
 
-
-        setLayout(glResources);
-        setVisible(true);
-      } /* end of panelMainPage constructor */
+      setLayout(glResources);
+      setVisible(true);
+    } /* end of panelMainPage constructor */
 
       private void btnConfirmActionPerformed(java.awt.event.ActionEvent eventBtnConfirm){
-      //  JOptionPane.showConfirmDialog(null, "Hello! \n Here are the terms of references. Do you accept?", "Terms of References", JOptionPane.YES_NO_OPTION);
-      }
+        ImageIcon icon = new ImageIcon(panelResources.class.getResource("/loading.gif"));
 
-  }
+        JDialog dialog = new JDialog();
+
+        Dimension dSize = new Dimension(600, 500);
+        dialog.setSize(dSize);
+        dialog.setMinimumSize(dSize);
+        dialog.setMaximumSize(dSize);
+        dialog.setResizable(false);
+
+        JPanel panelTest = new JPanel ();
+
+        JLabel lblImgLoading = new JLabel(icon);
+
+        JLabel lblPercentage = new JLabel();
+        lblPercentage.setFont(new Font("Avenir Next",1, 30));
+        lblPercentage.setForeground(Color.decode("#7FFFD4"));
+
+        GroupLayout glWait = new GroupLayout(panelTest);
+        glWait.setAutoCreateContainerGaps(true);
+        glWait.setHorizontalGroup(
+          glWait.createSequentialGroup()
+          .addGroup(
+            glWait.createParallelGroup()
+            .addComponent(lblImgLoading)
+            .addGroup(
+              glWait.createSequentialGroup()
+              .addGap(250,250,250)
+              .addComponent(lblPercentage))));
+        glWait.setVerticalGroup(
+        glWait.createSequentialGroup()
+          .addComponent(lblImgLoading)
+        //  .addGap(20,20,20)
+          .addComponent(lblPercentage));
+
+        panelTest.setLayout(glWait);
+        panelTest.add(lblImgLoading);
+        dialog.add(panelTest);
+        dialog.pack();
+        dialog.setVisible(true);
+
+        for(int x = 0; x < 100; x = x + (int)(Math.ceil((Math.random() * 5))))
+        {
+          try{
+          lblPercentage.setText(Integer.toString(x)+"%");
+          Thread.sleep(200);}
+          catch(InterruptedException e){JOptionPane.showMessageDialog(null, "Error!", "Error", JOptionPane.INFORMATION_MESSAGE); }
+        };
+      }}
