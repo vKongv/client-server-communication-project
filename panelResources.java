@@ -28,7 +28,6 @@ public class panelResources extends JPanel{
 
     cbCollection = new JComboBox(fileSelection);
     cbCollection.setSelectedIndex(0);
-  //  cbCollection.addActionListener(this);
 
     btnConfirm = new JButton();
     btnConfirm.setText("CONFIRM");
@@ -93,6 +92,7 @@ public class panelResources extends JPanel{
       .addGap(93, 93, 93)
       .addComponent(btnConfirm, GroupLayout.PREFERRED_SIZE, 40,GroupLayout.PREFERRED_SIZE));
 
+      setBackground(Color.decode("#FFFFFF"));
       setLayout(glResources);
       setVisible(true);
     } /* end of panelMainPage constructor */
@@ -100,23 +100,24 @@ public class panelResources extends JPanel{
       private void btnConfirmActionPerformed(java.awt.event.ActionEvent eventBtnConfirm){
         ImageIcon icon = new ImageIcon(panelResources.class.getResource("/loading.gif"));
 
-        JDialog dialog = new JDialog();
+      //  JDialog dialog = new JDialog();
+        JFrame frameWait = new JFrame();
 
-        Dimension dSize = new Dimension(600, 500);
-        dialog.setSize(dSize);
-        dialog.setMinimumSize(dSize);
-        dialog.setMaximumSize(dSize);
-        dialog.setResizable(false);
+        Dimension fSize = new Dimension(600, 500);
+        frameWait.setSize(fSize);
+        frameWait.setMinimumSize(fSize);
+        frameWait.setMaximumSize(fSize);
+        frameWait.setResizable(false);
 
-        JPanel panelTest = new JPanel ();
+        JPanel panelWait = new JPanel ();
 
         JLabel lblImgLoading = new JLabel(icon);
 
         JLabel lblPercentage = new JLabel();
         lblPercentage.setFont(new Font("Avenir Next",1, 30));
-        lblPercentage.setForeground(Color.decode("#7FFFD4"));
+        lblPercentage.setForeground(Color.decode("#B22222"));//#7FFFD4"));
 
-        GroupLayout glWait = new GroupLayout(panelTest);
+        GroupLayout glWait = new GroupLayout(panelWait);
         glWait.setAutoCreateContainerGaps(true);
         glWait.setHorizontalGroup(
           glWait.createSequentialGroup()
@@ -130,14 +131,18 @@ public class panelResources extends JPanel{
         glWait.setVerticalGroup(
         glWait.createSequentialGroup()
           .addComponent(lblImgLoading)
-        //  .addGap(20,20,20)
           .addComponent(lblPercentage));
 
-        panelTest.setLayout(glWait);
-        panelTest.add(lblImgLoading);
-        dialog.add(panelTest);
-        dialog.pack();
-        dialog.setVisible(true);
+        panelWait.setLayout(glWait);
+        panelWait.add(lblImgLoading);
+        panelWait.setBackground(Color.decode("#FFFFFF"));
+        panelWait.setVisible(true);
+        frameWait.add(panelWait);
+        frameWait.setVisible(true);
+        //dialog.add(panelTest);
+      //  dialog.pack();
+      //  dialog.setBackground(Color.decode("#FFFFFF"));
+      //  dialog.setVisible(true);
 
         for(int x = 0; x < 100; x = x + (int)(Math.ceil((Math.random() * 5))))
         {
@@ -145,5 +150,7 @@ public class panelResources extends JPanel{
           lblPercentage.setText(Integer.toString(x)+"%");
           Thread.sleep(200);}
           catch(InterruptedException e){JOptionPane.showMessageDialog(null, "Error!", "Error", JOptionPane.INFORMATION_MESSAGE); }
+          frameWait.revalidate();
+          frameWait.repaint();
         };
       }}
