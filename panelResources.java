@@ -1,7 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.*;
 import javax.swing.border.*;
-import java.util.*;
 import java.lang.*;
 
 public class panelResources extends JPanel{
@@ -9,10 +9,15 @@ public class panelResources extends JPanel{
   JLabel lblSelectMsg ;
   JLabel lblResource ;
   JComboBox cbCollection ;
-  String[] fileSelection = { "iTune", "ZoneAlarm", "WinRar", "Audacity" };
   JButton btnConfirm ;
+  private int downloadPercentage = 0;
 
   public panelResources () {
+    if (vkClient.fromServer.equalsIgnoreCase(vkClient.errorMessage[0]) || vkClient.fromServer.equalsIgnoreCase(vkClient.errorMessage[1]) || vkClient.fromServer.equalsIgnoreCase(vkClient.errorMessage[2])){
+      JOptionPane.showMessageDialog(null, vkClient.getUserInput() + " " + vkClient.fromServer + " " + vkClient.serverState, "Server message", JOptionPane.INFORMATION_MESSAGE);
+      //System.exit(1);
+    }
+
     lblWelcome = new JLabel();
     lblWelcome.setText("Welcome !");
     lblWelcome.setFont(new Font("Avenir Next", 0, 50));
@@ -26,8 +31,9 @@ public class panelResources extends JPanel{
     lblResource.setText("Resources: ");
     lblResource.setFont(new Font("Avenir Next", 1, 14));
 
-    cbCollection = new JComboBox(fileSelection);
+    cbCollection = new JComboBox(vkClient.resourceList);
     cbCollection.setSelectedIndex(0);
+  //  cbCollection.addActionListener(this);
 
     btnConfirm = new JButton();
     btnConfirm.setText("CONFIRM");
@@ -91,32 +97,39 @@ public class panelResources extends JPanel{
         .addComponent(cbCollection))
       .addGap(93, 93, 93)
       .addComponent(btnConfirm, GroupLayout.PREFERRED_SIZE, 40,GroupLayout.PREFERRED_SIZE));
-
       setBackground(Color.decode("#FFFFFF"));
+
       setLayout(glResources);
       setVisible(true);
     } /* end of panelMainPage constructor */
 
+
       private void btnConfirmActionPerformed(java.awt.event.ActionEvent eventBtnConfirm){
+        vkClient.sendUserInput(cbCollection.getSelectedIndex() + 1,2); // To notify server that the user is downloading.
+        JOptionPane.showMessageDialog(null, vkClient.fromServer, "Server message", JOptionPane.INFORMATION_MESSAGE);
         ImageIcon icon = new ImageIcon(panelResources.class.getResource("/loading.gif"));
 
         JDialog dialog = new JDialog();
 
-        Dimension fSize = new Dimension(600, 500);
-        dialog.setSize(fSize);
-        dialog.setMinimumSize(fSize);
-        dialog.setMaximumSize(fSize);
+        Dimension dSize = new Dimension(600, 500);
+        dialog.setSize(dSize);
+        dialog.setMinimumSize(dSize);
+        dialog.setMaximumSize(dSize);
         dialog.setResizable(false);
+        Dimension wndScreen = Toolkit.getDefaultToolkit().getScreenSize();
+        dialog.setLocation(wndScreen.width/2-this.getSize().width/2, wndScreen.height/2-this.getSize().height/2);
+        dialog.setBackground(Color.decode("#FFFFFF"));
+        dialog.setUndecorated(true);
 
-        JPanel panelWait = new JPanel ();
+        JPanel panelTest = new JPanel ();
 
         JLabel lblImgLoading = new JLabel(icon);
 
         JLabel lblPercentage = new JLabel();
         lblPercentage.setFont(new Font("Avenir Next",1, 30));
-        lblPercentage.setForeground(Color.decode("#B22222"));//#7FFFD4"));
+        lblPercentage.setForeground(Color.decode("#708090"));
 
-        GroupLayout glWait = new GroupLayout(panelWait);
+        GroupLayout glWait = new GroupLayout(panelTest);
         glWait.setAutoCreateContainerGaps(true);
         glWait.setHorizontalGroup(
           glWait.createSequentialGroup()
@@ -130,22 +143,31 @@ public class panelResources extends JPanel{
         glWait.setVerticalGroup(
         glWait.createSequentialGroup()
           .addComponent(lblImgLoading)
+        //  .addGap(20,20,20)
           .addComponent(lblPercentage));
 
-        panelWait.setLayout(glWait);
-        panelWait.add(lblImgLoading);
-        panelWait.setBackground(Color.decode("#FFFFFF"));
-        panelWait.setVisible(true);
-        dialog.add(panelWait);
+        panelTest.setLayout(glWait);
+        panelTest.add(lblImgLoading);
+        dialog.add(panelTest);
         dialog.pack();
-        dialog.setBackground(Color.decode("#FFFFFF"));
         dialog.setVisible(true);
-
-        for(int x = 0; x < 100; x = x + (int)(Math.ceil((Math.random() * 5))))
-        {
-          try{
-          lblPercentage.setText(Integer.toString(x)+"%");
-          Thread.sleep(200);}
-          catch(InterruptedException e){JOptionPane.showMessageDialog(null, "Error!", "Error", JOptionPane.INFORMATION_MESSAGE);
-        };
-      }}
+        Timer percentageTimer = new Timer (200, null);;
+        //For updating download percentage
+        ActionListener updatePercentage = new ActionListener(){
+          public void actionPerformed(ActionEvent e) {
+                int incrementValue = (int)(Math.ceil((Math.random() * 5)));
+                if ((downloadPercentage += incrementValue) >= 100){
+                  dialog.dispose();
+                  vkClient.sendUserInput(0,3);
+                  percentageTimer.stop();
+                }
+                lblPercentage.setText(Integer.toString(downloadPercentage) + "%");
+                panelTest.repaint();
+                //JOptionPane.showMessageDialog(null, Integer.toString(lblPercentage.getValue()), "Success", JOptionPane.INFORMATION_MESSAGE);
+            }
+          };
+          //Time for updating percentage
+        percentageTimer.addActionListener(updatePercentage);
+        percentageTimer.start();
+      }
+    }
