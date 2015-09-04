@@ -100,14 +100,13 @@ public class panelResources extends JPanel{
       private void btnConfirmActionPerformed(java.awt.event.ActionEvent eventBtnConfirm){
         ImageIcon icon = new ImageIcon(panelResources.class.getResource("/loading.gif"));
 
-      //  JDialog dialog = new JDialog();
-        JFrame frameWait = new JFrame();
+        JDialog dialog = new JDialog();
 
         Dimension fSize = new Dimension(600, 500);
-        frameWait.setSize(fSize);
-        frameWait.setMinimumSize(fSize);
-        frameWait.setMaximumSize(fSize);
-        frameWait.setResizable(false);
+        dialog.setSize(fSize);
+        dialog.setMinimumSize(fSize);
+        dialog.setMaximumSize(fSize);
+        dialog.setResizable(false);
 
         JPanel panelWait = new JPanel ();
 
@@ -137,12 +136,10 @@ public class panelResources extends JPanel{
         panelWait.add(lblImgLoading);
         panelWait.setBackground(Color.decode("#FFFFFF"));
         panelWait.setVisible(true);
-        frameWait.add(panelWait);
-        frameWait.setVisible(true);
-        //dialog.add(panelTest);
-      //  dialog.pack();
-      //  dialog.setBackground(Color.decode("#FFFFFF"));
-      //  dialog.setVisible(true);
+        dialog.add(panelWait);
+        dialog.pack();
+        dialog.setBackground(Color.decode("#FFFFFF"));
+        dialog.setVisible(true);
 
         for(int x = 0; x < 100; x = x + (int)(Math.ceil((Math.random() * 5))))
         {
