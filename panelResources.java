@@ -146,8 +146,6 @@ public class panelResources extends JPanel{
           try{
           lblPercentage.setText(Integer.toString(x)+"%");
           Thread.sleep(200);}
-          catch(InterruptedException e){JOptionPane.showMessageDialog(null, "Error!", "Error", JOptionPane.INFORMATION_MESSAGE); }
-          frameWait.revalidate();
-          frameWait.repaint();
+          catch(InterruptedException e){JOptionPane.showMessageDialog(null, "Error!", "Error", JOptionPane.INFORMATION_MESSAGE);
         };
       }}
