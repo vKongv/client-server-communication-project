@@ -10,6 +10,11 @@ public class panelDlSuccess extends JPanel{
   JButton btnNo ;
 
   public panelDlSuccess() {
+    if (vkClient.fromServer.equalsIgnoreCase(vkClient.errorMessage[0]) || vkClient.fromServer.equalsIgnoreCase(vkClient.errorMessage[1]) || vkClient.fromServer.equalsIgnoreCase(vkClient.errorMessage[2])){
+      JOptionPane.showMessageDialog(null, vkClient.fromServer, "Server message", JOptionPane.INFORMATION_MESSAGE);
+      System.exit(1);
+    }
+
     lblGreat = new JLabel();
     lblGreat.setText("Great ! ");
     lblGreat.setFont(new Font("Avenir Next", 0, 50));
@@ -70,8 +75,9 @@ public class panelDlSuccess extends JPanel{
           .addGroup(
             glDlSuccess.createSequentialGroup()
             .addGap(60,60,60)
-            .addComponent(btnYes, GroupLayout.PREFERRED_SIZE, 120,GroupLayout.PREFERRED_SIZE)
-            .addComponent(btnNo, GroupLayout.PREFERRED_SIZE, 120,GroupLayout.PREFERRED_SIZE)
+            .addComponent(btnYes, GroupLayout.PREFERRED_SIZE, 100,GroupLayout.PREFERRED_SIZE)
+            .addGap(10,10,10)
+            .addComponent(btnNo, GroupLayout.PREFERRED_SIZE, 100,GroupLayout.PREFERRED_SIZE)
           ))
     ); //end of setHorizontalGroup
 
@@ -95,11 +101,13 @@ public class panelDlSuccess extends JPanel{
   } //end of panelDlSuccess's constructor
 
   private void btnYesActionPerformed(java.awt.event.ActionEvent eventBtnYes){
-    //Write the code for Yes button. Perform action proceed to panelResources. 
+    //Write the code for Yes button. Perform action proceed to panelResources.
+    vkClient.sendUserInput(1,4);
   }
   private void btnNoActionPerformed(java.awt.event.ActionEvent eventBtnNo){
+    vkClient.sendUserInput(0,4);
     ImageIcon bye = new ImageIcon(panelDlSuccess.class.getResource("/bye.png"));
-    JOptionPane.showMessageDialog(null, "\n GOOD LUCK ! \n \n \t BYE! \n", "Exit", JOptionPane.INFORMATION_MESSAGE, bye);
+    JOptionPane.showMessageDialog(null, vkClient.fromServer, "Server message", JOptionPane.INFORMATION_MESSAGE,bye);
     System.exit(0);
   }
 
