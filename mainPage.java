@@ -10,6 +10,9 @@ public class mainPage extends JFrame{
       setMinimumSize(wndSize);
       setMaximumSize(wndSize);
       setResizable(false);
+      Dimension wndScreen = Toolkit.getDefaultToolkit().getScreenSize();
+      this.setLocation(wndScreen.width/2-this.getSize().width/2, wndScreen.height/2-this.getSize().height/2);
+      setBackground(Color.decode("#FFFFFF"));
       pack();
       if(i == 0){
         add(new panelMainPage());
@@ -19,13 +22,16 @@ public class mainPage extends JFrame{
         add(new panelResources());
         setTitle("Welcome");
       }
-
+      else if (i == 2){
+        add(new panelDlSuccess());
+        setTitle("Downloaded");
+      }
       setVisible(true);
     }
 
-    public static void main(String[] args) {
-       new mainPage(1);
-   }
+    //public static void main(String[] args) {
+       //new mainPage(0);
+   //}
 }
 
 
@@ -60,7 +66,6 @@ layout.createSequentialGroup()
           add(lblHostName);
           add(lblPortNumber);
           add(btnConnect);
-
         //  JOptionPane.showMessageDialog(null, "djdjdj", "InfoBox: Title", JOptionPane.INFORMATION_MESSAGE);
           setVisible(true);
         }
