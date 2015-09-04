@@ -1,4 +1,4 @@
-/**  Version 2.0
+/**  Version 3.0
 **/
 
 import java.net.*;
@@ -26,7 +26,7 @@ public class vkProtocol {
         String theMessage = "";
         switch(state){
         case WAITING :
-            theMessage = "Here are the terms of reference. Do you accept? Yes or No";
+            theMessage = "Here are the terms of reference. Do you accept?";
             state = DISPLAYINGTC;
             theOutput = Integer.toString(state) + "_" + theMessage;
             break;
