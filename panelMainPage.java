@@ -1,114 +1,109 @@
-import javax.swing.*;
-import java.awt.*;
-import javax.swing.border.*;
+/**  Version 3.0
+**/
 
-public class panelMainPage extends JPanel{
-  JLabel lblHostName ;
-  JLabel lblPortNumber ;
-  JButton btnConnect ;
-  JTextField txtHostName ;
-  JTextField txtPortNumber ;
+import java.net.*;
+import java.io.*;
 
-  public panelMainPage(){
-    lblHostName = new JLabel();
-    lblHostName.setText("Host Name    : ");
-    lblHostName.setFont(new Font("Avenir Next", 1, 14));
+public class vkProtocol {
+    private static final int WAITING = 0;
+    private static final int DISPLAYINGTC = 1;
+    private static final int DISPLAYINGRESOURCES = 2;
+    private static final int DOWNLOADING = 3;
+    private static final int FINISHED = 4;
 
-    lblPortNumber = new JLabel();
-    lblPortNumber.setText("Port Number : ");
-    lblPortNumber.setFont(new Font("Avenir Next", 1, 14));
 
-    txtHostName = new JTextField();
-    txtHostName.setFont(new Font("Avenir", 0, 14));
+    private static final int NUMRESOURCES = 4;
 
-    txtPortNumber = new JTextField();
-    txtPortNumber.setFont(new Font("Avenir", 0, 14));
+    private int state = WAITING;
 
-    btnConnect = new JButton();
-    btnConnect.setText("CONNECT");
-    btnConnect.setFont(new Font("Avenir Next", 1, 14));
-    btnConnect.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    btnConnect.addActionListener(
-      new java.awt.event.ActionListener() {
-        public void actionPerformed(java.awt.event.ActionEvent eventBtnConnect) {
-            btnConnectActionPerformed(eventBtnConnect);
+    private String[] resources = { "iTune", "ZoneAlarm", "WinRar", "Audacity" };
+    private int[] downloadCounter = {0,0,0,0}; // Download counter for all resources
+
+    private String errorMessage = "Invalid input! Please try again!";
+
+    public String processInput(String theInput) {
+        String theOutput = null;
+        String theMessage = "";
+        switch(state){
+        case WAITING :
+            theMessage = "Here are the terms of reference. Do you accept?";
+            state = DISPLAYINGTC;
+            theOutput = Integer.toString(state) + "_" + theMessage;
+            break;
+
+
+        case DISPLAYINGTC :
+            if (theInput.equalsIgnoreCase("Yes")) {
+                theOutput = "";
+                for(int i=0; i< resources.length; i ++){
+                  theMessage = theMessage + resources[i] + "_" + Integer.toString(downloadCounter[i]) + "_";
+                }
+                state = DISPLAYINGRESOURCES;
+                theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            else if (theInput.equalsIgnoreCase("No")){
+              theMessage = "Bye.";
+              state = WAITING;
+              theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            else{
+              theMessage = errorMessage;
+              theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            break;
+
+        case (DISPLAYINGRESOURCES) :
+          boolean found = false; //To identify whethere the resource had been found.
+          try{
+            int resourceLocation = Integer.parseInt(theInput) - 1; //The resource that the user want.
+            for (int i=0; i< resources.length; i++){
+              if (resources[resourceLocation] == resources[i]) {
+                  downloadCounter[i] += 1; // Increase counter by 1
+                  theMessage   = "You are downloading " + resources[i];
+                  state = DOWNLOADING;
+                  theOutput = Integer.toString(state) + "_" + theMessage ;
+                  found = true;
+                  break;
+                }
+              }
+
+              if (!found){
+                  theMessage = errorMessage;
+                  theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            break;
+          }catch (Exception e){
+            theMessage = errorMessage;
+            theOutput = theOutput = Integer.toString(state) + "_" + theMessage;
+            break;
+          }
+
+
+        case (DOWNLOADING) :
+          theMessage = "Enter BYE to exit, and ENTER to continue.";
+          state = FINISHED;
+          theOutput = Integer.toString(state) + "_" + theMessage;
+          break;
+
+        case (FINISHED) :
+            if (theInput.equalsIgnoreCase("enter")) {
+              for(int i=0; i< resources.length; i ++){
+                theMessage = theMessage + resources[i] + "_" + Integer.toString(downloadCounter[i]) + "_";
+              }
+                state = DISPLAYINGRESOURCES;
+                theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            else if (theInput.equalsIgnoreCase("bye")){
+                theMessage = "Bye.";
+                state = WAITING;
+                theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            else {
+              theMessage= errorMessage;
+              theOutput = Integer.toString(state) + "_" + theMessage;
+            }
+            break;
         }
-      }
-    );
-
-    add(lblHostName);
-    add(lblPortNumber);
-    add(btnConnect);
-    add(txtHostName);
-    add(txtPortNumber);
-    add(btnConnect);
-
-
-//To make layout in mainPage Panel using GroupLayout.
-    GroupLayout glMainPage = new GroupLayout(this);
-    glMainPage.setAutoCreateContainerGaps(true);
-
-/* --- All grouping in this section is based on Horizontal view. --- */
-    glMainPage.setHorizontalGroup(
-      glMainPage.createSequentialGroup()
-
-/* --- Group up to all component to become column 1 --- */
-      .addGroup(
-        glMainPage.createParallelGroup()
-
-/* --- Group up lblHostName,lblPortNumber with txtPortNumber,txtHostName (ROW 1). --- */
-        .addGroup(
-          glMainPage.createSequentialGroup()
-          .addGap(206, 206, 206)
-          .addGroup(
-            glMainPage.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addComponent(lblHostName)
-            .addComponent(lblPortNumber)
-          )
-          .addGroup(
-            glMainPage.createParallelGroup(GroupLayout.Alignment.LEADING)
-            .addComponent(txtHostName, GroupLayout.PREFERRED_SIZE, 287,GroupLayout.PREFERRED_SIZE)
-            .addComponent(txtPortNumber, GroupLayout.PREFERRED_SIZE, 287,GroupLayout.PREFERRED_SIZE)
-          )
-        )
-
-/* --- Add btnConnect as (ROW 2). --- */
-        .addGroup(
-          glMainPage.createSequentialGroup()
-          .addGap(206, 206, 206)
-          .addComponent(btnConnect,  GroupLayout.PREFERRED_SIZE, 387,GroupLayout.PREFERRED_SIZE)
-        )
-      )
-    );
-
-/* --- All grouping in this section is based on Horizontal view. --- */
-    glMainPage.setVerticalGroup(
-          glMainPage.createSequentialGroup()
-          .addGap(100, 100, 100)
-          .addGroup(
-            glMainPage.createParallelGroup(GroupLayout.Alignment.BASELINE)
-            .addComponent(lblHostName)
-            .addComponent(txtHostName, GroupLayout.PREFERRED_SIZE, 35,GroupLayout.PREFERRED_SIZE)
-            )
-          .addGap(40, 40, 40)
-
-        .addGroup(
-          glMainPage.createParallelGroup(GroupLayout.Alignment.BASELINE)
-          .addComponent(lblPortNumber)
-          .addComponent(txtPortNumber, GroupLayout.PREFERRED_SIZE, 35,GroupLayout.PREFERRED_SIZE)
-        )
-        .addGap(93, 93, 93)
-        .addComponent(btnConnect, GroupLayout.PREFERRED_SIZE, 40,GroupLayout.PREFERRED_SIZE)
-    );
-
-    setBackground(Color.decode("#FFFFFF"));
-    setLayout(glMainPage);
-    setVisible(true);
-  } /* end of panelMainPage constructor */
-
-  private void btnConnectActionPerformed(java.awt.event.ActionEvent eventBtnConnect){
-    ImageIcon terms = new ImageIcon(panelDlSuccess.class.getResource("/terms.png"));
-      JOptionPane.showConfirmDialog(null, " Hello! \n Here are the terms of references. \n Do you accept?", "Terms of References", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, terms);
-  }
-
+        return theOutput;
+    }
 }
