@@ -1,94 +1,167 @@
- /** Version 2.0
+ /** Version 3.0
  **/
 
 import java.io.*;
 import java.net.*;
+import javax.swing.*;
 
 public class vkClient {
-    public static void main(String[] args) throws IOException {
+    private static Socket kkSocket;
+    private static PrintWriter out;
+    private static BufferedReader in;
+    private static mainPage loginPage;
+    private static mainPage downloadPage;
+    private static mainPage continuePage;
+    private static String fromUser = "";
+    public static String fromServer = "";
+    public static String errorMessage[] = {"Invalid input! Please try again!", "Bye.", "Server Error"};
+    public static int serverState = -1;
+    public static String resourceList [];
 
-        if (args.length != 2) {
-            System.err.println(
-                "Usage: java vkClient <host name> <port number>");
-            System.exit(1);
-        }
+    /**
+    Function name : connectToServer
+    Return type : void
+    Paremeters : hostName, strPortNumber
 
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
+    hostName = The server's host name
+    strPortNumber = The server's port number
 
-        String errorMessage = "Invalid input! Please try again!";
-        String previousMessage = ""; // To display again the message if any error in input.
+    Purpose : used to connect to server
+    **/
+    public static void connectToServer(String hostName, String strPortNumber){
+      int portNumber = -1;
 
-        try (
-            Socket kkSocket = new Socket(hostName, portNumber); //Connect to server
-            PrintWriter out = new PrintWriter(kkSocket.getOutputStream(), true); //Message that want to send to server
-            BufferedReader in = new BufferedReader(
-                new InputStreamReader(kkSocket.getInputStream()));
-        ) {
-          //Input from user
-            BufferedReader stdIn =
-                new BufferedReader(new InputStreamReader(System.in));
-            String fromServer;
-            String fromUser;
-            int stateCounter = 0; //To identify the state of the server
+      //Check for any error occur when converting to integer
+      try {
+         portNumber = Integer.parseInt(strPortNumber);
+      } catch (Exception e){
+        fromServer = errorMessage[0];
+      }
 
-            while ((fromServer = in.readLine()) != null) {
+      //Check can connect to server or not.
+      try {
+          kkSocket = new Socket(hostName, portNumber); //Connect to server
+          out = new PrintWriter(kkSocket.getOutputStream(), true); //Message that want to send to server
+          in = new BufferedReader(
+              new InputStreamReader(kkSocket.getInputStream()));
+              serverState = 0;
+              fromServer = in.readLine();
               String [] messageFromServer = fromServer.split("_");
-              int stateOfServer = Integer.parseInt(messageFromServer[0]);
+              serverState = Integer.parseInt(messageFromServer[0]);
               fromServer = messageFromServer[1];
+      } catch (Exception e){
+        fromServer = errorMessage[0];
+        return;
+      }
+    }
 
-              if (fromServer.equalsIgnoreCase(errorMessage)){
-                System.out.println("\nServer: " + fromServer );
-                System.out.println("Server: " + previousMessage + "\n");
-              }
-              else{
-              //If the server send back the resource list, tokenize it and display it to the user
-                if (stateOfServer == 2){
-                  fromServer = "\n";
-                  int counter = 1;
-                  for(int i=1;i<messageFromServer.length - 1;i+=2){
-                    fromServer = fromServer + Integer.toString(counter) + ". " + messageFromServer[i] + " " + messageFromServer[i+1] + "\n"  ; //Combine the message
-                    counter ++;
-                  }
-                }
+    /**
+    Function Name : sendUserInput
+    Retrun type : void
+    Parementer : int decision , int type
 
-                previousMessage = fromServer;
-                //Show server's message
-                System.out.println("\nServer: " + fromServer + "\n");
-                if (fromServer.equals("Bye."))
-                    break;
+    decision = User's decision (Yes or No)
+    type = Which message type is this? (Dispaly TC, etc.)
 
-                //If the state is downloading, wait for awhile for the program to finish download and send a message to the server.
-                //HARDCODE
-                if(stateOfServer == 3){
-                  System.out.println("\nServer: Downloading.. Please wait...\n");
-                  try{
-                    Thread.sleep(1000);
-                  }
-                  catch(InterruptedException ex){
-                    Thread.currentThread().interrupt();
-                  }
-                  out.println("Finished downloading.");
-                  continue;
-                }
-              }
+    Purpose : Used to send user input to server from GUI
+    **/
+    public static void sendUserInput(int decision, int type){
 
-                //Read user input
-                System.out.print("Client: ");
-                fromUser = stdIn.readLine();
+      switch (type){
+        case 0 :
+          fromUser = "";
+          break;
+        case 1:
+          if (decision == JOptionPane.YES_OPTION){
+            fromUser = "Yes";
+          }
+          else if (decision == JOptionPane.NO_OPTION){
+            fromUser = "No";
+          }
+          else {
+            fromUser = "UNKNOWN INPUT";
+          }
+          break;
+        case 2:
+          fromUser = Integer.toString(decision);
+          break;
+        case 3:
+          fromUser = "";
+          break;
+        case 4:
+          if (decision == 0){
+            fromUser = "bye";
+          }
+          else if (decision == 1){
+            fromUser = "enter";
+            //If user return to this page through continue page.
+              continuePage.setVisible(false);
+          }
+          else {
+            fromUser = "UNKNOWN INPUT";
+          }
+      } //Switch
+      out.println(fromUser);
 
-                if (fromUser != null) {
-                    //System.out.println("Client: " + fromUser);
-                    out.println(fromUser);
-                }
-            }
-        } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + hostName);
-            System.exit(1);
-        } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to " +
-                hostName);
-            System.exit(1);
+      try {
+      if((fromServer = in.readLine()) != null){
+        String [] messageFromServer = fromServer.split("_");
+        serverState = Integer.parseInt(messageFromServer[0]);
+        fromServer = messageFromServer[1];
+        if (fromServer.equalsIgnoreCase(errorMessage[0]) || fromServer.equalsIgnoreCase(errorMessage[1]) || fromServer.equalsIgnoreCase(errorMessage[2])){
+          return;
         }
+        else{
+        //If the server send back the resource list, tokenize it and display it to the user
+          if (serverState == 2){
+            fromServer = "";
+            int counter = 1;
+            for(int i=1;i<messageFromServer.length - 1;i+=2){
+              fromServer = fromServer + messageFromServer[i] + " " + messageFromServer[i+1] + "\n"  ; //Combine the message
+              counter ++;
+            }
+            resourceList = fromServer.split("\n");
+            loginPage.setVisible(false);
+            downloadPage = new mainPage(1);
+          }
+
+          if(serverState == 4){
+            downloadPage.setVisible(false);
+            continuePage = new mainPage(2);
+          }
+        }
+      }else{
+        fromServer = errorMessage[2];
+      }// Outest if
+    } catch (IOException e){
+           fromServer = "Server Error";
+      }
+    }  //function
+
+    /**
+    Function name : disconnect
+    Return type : void
+    Parameter : None
+
+    used to disconnect client from server. To exit the program
+    **/
+    public static void disconnect (){
+      System.exit(0);
+    }
+
+    /**
+    Function name : getUserInput
+    Return type : String
+    Parameter : None
+
+    used to retrieve the user input.
+    **/
+
+    public static String getUserInput(){
+      return fromUser;
+    }
+
+    public static void main(String[] args) {
+        loginPage = new mainPage(0);
     }
 }
