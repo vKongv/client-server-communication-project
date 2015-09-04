@@ -1,4 +1,4 @@
-/** Version 1.0
+/** Version 3.0
 **/
 
 
@@ -32,7 +32,6 @@ public class vkServer {
         ) {
             System.out.println("Successful connect to port " + portNumber);
             String inputLine, outputLine;
-
             // Initiate conversation with client
             vkProtocol protocol = new vkProtocol();
             outputLine = protocol.processInput(null);
